@@ -10,14 +10,18 @@ import { initLifecycle, callHook } from './lifecycle'
 import { initProvide, initInjections } from './inject'
 import { extend, mergeOptions, formatComponentName } from '../util/index'
 
+// 在Vue的源码中每一个类型的实例都会有一个唯一标识
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
+    // 当前的vue实例
     const vm: Component = this
     // a uid
-    vm._uid = uid++
+    // 唯一标识
+    vm._uid = uid++ 
 
+    // 测试性能用的，略
     let startTag, endTag
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -29,44 +33,57 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
-    if (options && options._isComponent) {
+    if (options && options._isComponent) { // 是不是一个组件
+      // 开始进行源码分析，一般都是使用简单的Vue实例，这里针对组件，暂时略
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
-      vm.$options = mergeOptions(
+      vm.$options = mergeOptions( // mergerOptions 可以简单理解为配置合并
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
       )
     }
+
+
+
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      initProxy(vm)
+      initProxy(vm) // 已经尝试使用vue3.0语法了
     } else {
       vm._renderProxy = vm
     }
+
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
-    callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
+
+
+    initLifecycle(vm) // 初始化生命周期的一些状态变量
+    initEvents(vm) // 初始化事件的容器
+    initRender(vm) // 初始化创建元素的方法
+    callHook(vm, 'beforeCreate') // 调用生命周期函数
+    initInjections(vm) // resolve injections before data/props // 初始化注入器
+    initState(vm) // 初始化状态数据 （data，property等）
     initProvide(vm) // resolve provide after data/props
-    callHook(vm, 'created')
+    callHook(vm, 'created') // 生命周期函数的调用
 
     /* istanbul ignore if */
+    // 又是对性能进行测试
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
       vm._name = formatComponentName(vm, false)
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 前面的代码是组件的创建
+
     if (vm.$options.el) {
-      vm.$mount(vm.$options.el)
+      vm.$mount(vm.$options.el) // 组件的挂载，将组件挂载el的元素上
+      // 先调用 扩展的那个$mount 方法 ，生成render
+      // 再调用原始的 $mount 方法， 获得元素，再调用mountComponent 方法
+      // 这两个都定义在platform/web里面
     }
   }
 }

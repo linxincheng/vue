@@ -1,12 +1,19 @@
 /* @flow */
 
+// 使用 vue.js 的文件的入口
+
 import config from 'core/config'
 import { warn, cached } from 'core/util/index'
+// 调试代码性能用的
 import { mark, measure } from 'core/util/perf'
 
+// Vue 构造函数
 import Vue from './runtime/index'
 import { query } from './util/index'
+
+// 是用来生成 render 的工具方法
 import { compileToFunctions } from './compiler/index'
+
 import { shouldDecodeNewlines, shouldDecodeNewlinesForHref } from './util/compat'
 
 const idToTemplate = cached(id => {
@@ -14,6 +21,10 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
+// 将原始的$mount 存储起来，然后实现了新的 $mount
+// 然后再调用$mount 就是在扩展原有的 $mount 方法
+
+// 就是生成render，在调用 系统的 原有的 $mount 函数
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,

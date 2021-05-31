@@ -1,6 +1,12 @@
 /* @flow */
+// 配置了 __patch__
+// 定义了原始 $mount 方法
 
+
+// 这是真正Vue构造函数的位置
 import Vue from 'core/index'
+
+
 import config from 'core/config'
 import { extend, noop } from 'shared/util'
 import { mountComponent } from 'core/instance/lifecycle'
@@ -31,9 +37,11 @@ extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
-Vue.prototype.__patch__ = inBrowser ? patch : noop
+// 使用虚拟 DOM 更新真正 DOM 的核心算法
+Vue.prototype.__patch__ = inBrowser ? patch : noop // noop是 no operation 空函数
 
 // public mount method
+// 原始的 mount 方法。调用挂载组件的方法
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
@@ -44,6 +52,7 @@ Vue.prototype.$mount = function (
 
 // devtools global hook
 /* istanbul ignore next */
+// 略
 if (inBrowser) {
   setTimeout(() => {
     if (config.devtools) {
